@@ -15,7 +15,7 @@ export default async function handler(req, res) {
                 FROM predictions p
                 JOIN grocery_stores gs ON p.store_id = gs.store_id
                 JOIN food_banks fb ON p.bank_id = fb.bank_id
-                ORDER BY p.predicted_weight DESC
+                -- Changed from ORDER BY p.predicted_weight DESC to show variety of weights
             `);
             
             res.status(200).json(result.rows);

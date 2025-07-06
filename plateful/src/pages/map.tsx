@@ -48,13 +48,15 @@ const MapPage = () => {
           };
           console.log('Grocery store coords:', groceryStore.coords);
 
-          // Get unique food banks with their highest predicted weights
+          // Get unique food banks
           const foodBankMap = new Map();
           data.forEach((record: any) => {
             const bankId = record.bank_id;
             const weight = parseFloat(record.predicted_weight);
             
-            if (!foodBankMap.has(bankId) || weight > foodBankMap.get(bankId).weight) {
+            // Comment out the highest weight condition to show random locations
+            // if (!foodBankMap.has(bankId) || weight > foodBankMap.get(bankId).weight) {
+            if (!foodBankMap.has(bankId)) {
               foodBankMap.set(bankId, {
                 coords: [
                   relativeCenter[0] + (parseFloat(record.bank_location_x) - initialCenter[0]) * scalingFactor + 0.005,
@@ -65,7 +67,7 @@ const MapPage = () => {
             }
           });
 
-          const foodBanks: FoodBank[] = Array.from(foodBankMap.values()).slice(0, 8);
+          const foodBanks: FoodBank[] = Array.from(foodBankMap.values()).slice(0, 10);
           console.log('Food banks:', foodBanks);
 
           setGroceryStore(groceryStore);
