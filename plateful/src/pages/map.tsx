@@ -27,15 +27,26 @@ const MapPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log('Fetching predictions...');
         const response = await fetch("/api/predictions");
         const data = await response.json();
+        console.log('Received data:', data);
 
         if (data.length > 0) {
           // Use the first store as the main grocery store
           const firstRecord = data[0];
+          console.log('First record:', firstRecord);
+          
+          // Apply scaling to convert coordinates to Kingston area
+          const scalingFactor = 0.0002; // used to keep the demo foodbanks within range
+          
           const groceryStore: GroceryStore = {
-            coords: [parseFloat(firstRecord.store_location_x), parseFloat(firstRecord.store_location_y)],
+            coords: [
+              relativeCenter[0] + (parseFloat(firstRecord.store_location_x) - initialCenter[0]) * scalingFactor + 0.005,
+              relativeCenter[1] + (parseFloat(firstRecord.store_location_y) - initialCenter[1]) * scalingFactor - 0.04
+            ],
           };
+          console.log('Grocery store coords:', groceryStore.coords);
 
           // Get unique food banks with their highest predicted weights
           const foodBankMap = new Map();
@@ -45,16 +56,22 @@ const MapPage = () => {
             
             if (!foodBankMap.has(bankId) || weight > foodBankMap.get(bankId).weight) {
               foodBankMap.set(bankId, {
-                coords: [parseFloat(record.bank_location_x), parseFloat(record.bank_location_y)],
+                coords: [
+                  relativeCenter[0] + (parseFloat(record.bank_location_x) - initialCenter[0]) * scalingFactor + 0.005,
+                  relativeCenter[1] + (parseFloat(record.bank_location_y) - initialCenter[1]) * scalingFactor - 0.04
+                ],
                 weight: weight
               });
             }
           });
 
           const foodBanks: FoodBank[] = Array.from(foodBankMap.values()).slice(0, 8);
+          console.log('Food banks:', foodBanks);
 
           setGroceryStore(groceryStore);
           setFoodBanks(foodBanks);
+        } else {
+          console.log('No data received from API');
         }
       } catch (error) {
         console.error('Error fetching predictions:', error);
