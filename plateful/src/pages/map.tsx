@@ -58,9 +58,9 @@ const MapPage = () => {
   };
 
   return (
-    <div>
+    <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
       <NewHeader toggleVisibility={toggleVisibility}/>
-      <div style={{ height: "500px", width: "100%" }}>
+      <div style={{ flex: 1, width: "100%" }}>
         <DynamicMap groceryStore={groceryStore} foodBanks={foodBanks} initialCenter={initialCenter} visible={visible} />
       </div>
       <Footer />
