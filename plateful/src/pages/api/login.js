@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   
       try {
         const result = await query(
-          'SELECT * FROM users WHERE username = $1 AND password = $2',
+          'SELECT * FROM userdata WHERE username = $1 AND password = $2',
             [username, password]
         );
 
