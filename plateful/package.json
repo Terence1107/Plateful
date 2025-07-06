@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@react-google-maps/api": "^2.20.5",
+    "dotenv": "^17.0.1",
     "next": "15.1.6",
     "papaparse": "^5.5.1",
     "pg": "^8.13.1",

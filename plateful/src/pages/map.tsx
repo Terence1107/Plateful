@@ -26,28 +26,39 @@ const MapPage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch("/store_bank_predictions.csv");
-      const csvData = await response.text();
-      const parsed = Papa.parse(csvData, { header: true });
-      const data = parsed.data as any[];
+      try {
+        const response = await fetch("/api/predictions");
+        const data = await response.json();
 
-      const groceryStore: GroceryStore = {
-        coords: initialCenter,
-      };
+        if (data.length > 0) {
+          // Use the first store as the main grocery store
+          const firstRecord = data[0];
+          const groceryStore: GroceryStore = {
+            coords: [parseFloat(firstRecord.store_location_x), parseFloat(firstRecord.store_location_y)],
+          };
 
-      const scalingFactor = 0.0002; // used to keep the demo foodbanks within range
+          // Get unique food banks with their highest predicted weights
+          const foodBankMap = new Map();
+          data.forEach((record: any) => {
+            const bankId = record.bank_id;
+            const weight = parseFloat(record.predicted_weight);
+            
+            if (!foodBankMap.has(bankId) || weight > foodBankMap.get(bankId).weight) {
+              foodBankMap.set(bankId, {
+                coords: [parseFloat(record.bank_location_x), parseFloat(record.bank_location_y)],
+                weight: weight
+              });
+            }
+          });
 
-      const foodBanks: FoodBank[] = data.slice(7, 15).map((row) => ({
-        // Coordinates have calculations to simulate the foodbanks within Kingston region
-        coords: [ 
-            relativeCenter[0] + (parseFloat(row.Bank_Location_X) - initialCenter[0]) * scalingFactor + 0.005, 
-            relativeCenter[1] + (parseFloat(row.Bank_Location_Y) - initialCenter[1]) * scalingFactor - 0.04
-        ],
-        weight: parseFloat(row.Predicted_Weight),
-      }));
+          const foodBanks: FoodBank[] = Array.from(foodBankMap.values()).slice(0, 8);
 
-      setGroceryStore(groceryStore);
-      setFoodBanks(foodBanks);
+          setGroceryStore(groceryStore);
+          setFoodBanks(foodBanks);
+        }
+      } catch (error) {
+        console.error('Error fetching predictions:', error);
+      }
     };
 
     fetchData();
